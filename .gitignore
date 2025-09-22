@@ -1,0 +1,22 @@
+# =================================================
+# General Directory .gitignore
+# Note: Common files (*.log, .DS_Store, etc.)
+#       are handled by global gitignore
+# =================================================
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+
+# Cache
+.cache/
+*.cache
+
+# Personal/private content
+personal/
+private/
+*.secret
+
+# Project-specific
+# (Add project-specific patterns here)
