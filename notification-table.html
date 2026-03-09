@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notification Table - SB Design System</title>
+  <style>
+    :root {
+      --color-bg: #0a0a0f;
+      --color-surface: #13131a;
+      --color-surface-hover: #1a1a24;
+      --color-border: #2a2a3a;
+      --color-text: #e4e4ed;
+      --color-text-secondary: #9494a8;
+      --color-text-muted: #6b6b80;
+      --color-accent: #6366f1;
+      --color-accent-hover: #818cf8;
+
+      /* Badge colors */
+      --badge-push-bg: #1e3a5f;
+      --badge-push-text: #60a5fa;
+      --badge-toast-bg: #3b2f1a;
+      --badge-toast-text: #fbbf24;
+      --badge-dialog-bg: #2d1b3d;
+      --badge-dialog-text: #c084fc;
+      --badge-email-bg: #1a332a;
+      --badge-email-text: #34d399;
+      --badge-banner-bg: #3b1f1f;
+      --badge-banner-text: #f87171;
+      --badge-live-bg: #1a2d3d;
+      --badge-live-text: #38bdf8;
+      --badge-widget-bg: #2d2a1a;
+      --badge-widget-text: #e2b96f;
+      --badge-dynamic-bg: #1f2d3b;
+      --badge-dynamic-text: #7dd3fc;
+
+      /* Phase colors */
+      --phase1-bg: #1a3328;
+      --phase1-text: #4ade80;
+      --phase2-bg: #2d2a1a;
+      --phase2-text: #fbbf24;
+      --phase3-bg: #2d1b1b;
+      --phase3-text: #f87171;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+      background: var(--color-bg);
+      color: var(--color-text);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Header */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10, 10, 15, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--color-border);
+      padding: 16px 32px;
+    }
+
+    .header-inner {
+      max-width: 1800px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .header h1 {
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .header-meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .count-badge {
+      background: var(--color-accent);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 100px;
+    }
+
+    /* Controls */
+    .controls {
+      padding: 16px 32px;
+      max-width: 1800px;
+      margin: 0 auto;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .search-box {
+      position: relative;
+      flex: 1;
+      min-width: 240px;
+      max-width: 400px;
+    }
+
+    .search-box input {
+      width: 100%;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      padding: 8px 12px 8px 36px;
+      color: var(--color-text);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .search-box input:focus {
+      border-color: var(--color-accent);
+    }
+
+    .search-box input::placeholder {
+      color: var(--color-text-muted);
+    }
+
+    .search-box svg {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--color-text-muted);
+    }
+
+    .filter-group {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      padding: 6px 14px;
+      color: var(--color-text-secondary);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .filter-btn:hover {
+      background: var(--color-surface-hover);
+      color: var(--color-text);
+    }
+
+    .filter-btn.active {
+      background: var(--color-accent);
+      border-color: var(--color-accent);
+      color: #fff;
+    }
+
+    /* Table Container */
+    .table-container {
+      padding: 0 32px 32px;
+      max-width: 1800px;
+      margin: 0 auto;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 13px;
+    }
+
+    thead {
+      position: sticky;
+      top: 61px;
+      z-index: 50;
+    }
+
+    thead th {
+      background: var(--color-surface);
+      color: var(--color-text-muted);
+      font-weight: 500;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--color-border);
+      white-space: nowrap;
+      user-select: none;
+      cursor: pointer;
+    }
+
+    thead th:first-child {
+      border-radius: 8px 0 0 0;
+    }
+
+    thead th:last-child {
+      border-radius: 0 8px 0 0;
+    }
+
+    thead th:hover {
+      color: var(--color-text-secondary);
+    }
+
+    tbody tr {
+      transition: background-color 0.1s;
+    }
+
+    tbody tr:hover {
+      background: var(--color-surface-hover);
+    }
+
+    tbody td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--color-border);
+      vertical-align: top;
+    }
+
+    /* Cell specific styles */
+    .cell-index {
+      color: var(--color-text-muted);
+      font-variant-numeric: tabular-nums;
+      font-weight: 500;
+      min-width: 36px;
+      text-align: center;
+    }
+
+    .cell-section {
+      font-weight: 500;
+      color: var(--color-text);
+      min-width: 160px;
+    }
+
+    .cell-types {
+      min-width: 140px;
+    }
+
+    .cell-trigger {
+      min-width: 200px;
+      max-width: 300px;
+      color: var(--color-text-secondary);
+      font-size: 12.5px;
+      line-height: 1.6;
+    }
+
+    .cell-purpose {
+      min-width: 180px;
+      max-width: 260px;
+      color: var(--color-text-secondary);
+      font-size: 12.5px;
+      line-height: 1.6;
+    }
+
+    .cell-title {
+      min-width: 180px;
+      font-weight: 500;
+    }
+
+    .cell-body {
+      min-width: 240px;
+      max-width: 360px;
+      font-size: 12.5px;
+      line-height: 1.6;
+    }
+
+    .cell-body .en {
+      color: var(--color-text);
+    }
+
+    .cell-body .ja {
+      color: var(--color-text-muted);
+      font-size: 11.5px;
+      display: block;
+      margin-top: 4px;
+    }
+
+    .cell-destination {
+      min-width: 160px;
+      max-width: 220px;
+      color: var(--color-text-secondary);
+      font-size: 12.5px;
+    }
+
+    .cell-phase {
+      min-width: 80px;
+      text-align: center;
+    }
+
+    .cell-figma {
+      min-width: 70px;
+      text-align: center;
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      margin: 2px 3px 2px 0;
+      white-space: nowrap;
+    }
+
+    .badge-push { background: var(--badge-push-bg); color: var(--badge-push-text); }
+    .badge-toast { background: var(--badge-toast-bg); color: var(--badge-toast-text); }
+    .badge-dialog { background: var(--badge-dialog-bg); color: var(--badge-dialog-text); }
+    .badge-email { background: var(--badge-email-bg); color: var(--badge-email-text); }
+    .badge-banner { background: var(--badge-banner-bg); color: var(--badge-banner-text); }
+    .badge-live-activity { background: var(--badge-live-bg); color: var(--badge-live-text); }
+    .badge-widget { background: var(--badge-widget-bg); color: var(--badge-widget-text); }
+    .badge-dynamic-island { background: var(--badge-dynamic-bg); color: var(--badge-dynamic-text); }
+
+    .badge-phase {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .badge-phase-1 { background: var(--phase1-bg); color: var(--phase1-text); }
+    .badge-phase-2 { background: var(--phase2-bg); color: var(--phase2-text); }
+    .badge-phase-3 { background: var(--phase3-bg); color: var(--phase3-text); }
+
+    /* Figma link */
+    .figma-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      color: var(--color-text-muted);
+      text-decoration: none;
+      transition: all 0.15s;
+      margin: 1px;
+    }
+
+    .figma-link:hover {
+      background: var(--color-accent);
+      border-color: var(--color-accent);
+      color: #fff;
+    }
+
+    /* Row detail expansion */
+    .row-detail {
+      display: none;
+    }
+
+    .row-detail.show {
+      display: table-row;
+    }
+
+    .row-detail td {
+      background: var(--color-surface);
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .detail-item label {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--color-text-muted);
+      margin-bottom: 4px;
+    }
+
+    .detail-item p {
+      font-size: 13px;
+      color: var(--color-text);
+      line-height: 1.6;
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--color-text-muted);
+    }
+
+    .empty-state svg {
+      margin-bottom: 12px;
+      opacity: 0.4;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      height: 6px;
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--color-border);
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--color-text-muted);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header { padding: 12px 16px; }
+      .controls { padding: 12px 16px; }
+      .table-container { padding: 0 16px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="header-inner">
+      <h1>Notification Design Table</h1>
+      <div class="header-meta">
+        <span class="count-badge" id="rowCount">42 items</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="search-box">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="searchInput" placeholder="Search notifications...">
+    </div>
+
+    <div class="filter-group" id="phaseFilters">
+      <button class="filter-btn active" data-phase="all">All</button>
+      <button class="filter-btn" data-phase="Phase 1">Phase 1</button>
+      <button class="filter-btn" data-phase="Phase 2">Phase 2</button>
+      <button class="filter-btn" data-phase="Phase 3">Phase 3</button>
+    </div>
+
+    <div class="filter-group" id="typeFilters">
+      <button class="filter-btn" data-type="Push">Push</button>
+      <button class="filter-btn" data-type="Toast">Toast</button>
+      <button class="filter-btn" data-type="Dialog">Dialog</button>
+      <button class="filter-btn" data-type="Email">Email</button>
+      <button class="filter-btn" data-type="Banner">Banner</button>
+      <button class="filter-btn" data-type="Live Activity">Live</button>
+      <button class="filter-btn" data-type="Widget">Widget</button>
+      <button class="filter-btn" data-type="Dynamic Island">DI</button>
+    </div>
+  </div>
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Section</th>
+          <th>Type</th>
+          <th>Trigger</th>
+          <th>Purpose</th>
+          <th>Title (UK)</th>
+          <th>Body (UK)</th>
+          <th>Destination</th>
+          <th>Phase</th>
+          <th>Figma</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+      </tbody>
+    </table>
+
+    <div class="empty-state" id="emptyState" style="display:none;">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <p>No matching notifications found.</p>
+    </div>
+  </div>
+
+<script>
+const notificationData = [
+  {"index":1,"対応箇所":"Onboarding (通知許可)","通知の種類_list":["Dialog"],"トリガー":"アカウント登録完了後、Welcome 画面で「通知を設定」を選択した時","目的":"プッシュ通知の許可を取得し、以降のリマインダー・結果通知を届ける","タイトル案_UK":"Turn on notifications 🔔","本文案_UK":"Get kick-off reminders, bet results and exclusive offers. Never miss a moment. [キックオフリマインダーやベット結果をお届けします。]","遷移先":"OS の通知許可ダイアログ → 設定画面","Phase":"Phase 1","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14057-22536"]},
+  {"index":2,"対応箇所":"Onboarding (メール認証)","通知の種類_list":["Push","Email"],"トリガー":"アカウント登録後、一定時間以内にメール認証が未完了の場合","目的":"本人確認とスパム対策。認証完了で KYC や入金へ誘導","タイトル案_UK":"Verify your email ✉️","本文案_UK":"Click the link we sent to complete your sign-up and get started. [送付したリンクから認証を完了し、始めましょう。]","遷移先":"メール内リンク（認証完了ページ）","Phase":"Phase 1","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14024-221597","https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14057-22935"]},
+  {"index":3,"対応箇所":"Onboarding (KYC)","通知の種類_list":["Push","Email"],"トリガー":"アカウント登録後、24時間以内にKYC（本人確認）が未完了の場合","目的":"ベットや出金に必要なKYCを促し、離脱を防ぐ","タイトル案_UK":"Verify your account to start betting 🛡️","本文案_UK":"Upload your ID now to unlock full access to your account and claim your welcome bonus. [本人確認を完了させて、全てのアカウント機能とウェルカムボーナスをアンロックしましょう。]","遷移先":"My Page > KYC画面","Phase":"Phase 1","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14024-221597","https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14057-22935"]},
+  {"index":4,"対応箇所":"Onboarding (KYC)","通知の種類_list":["Push","Toast"],"トリガー":"KYCの審査が完了し、承認された時","目的":"ユーザーに安心感を与え、最初の入金・ベットへ誘導する","タイトル案_UK":"You're verified! ✅","本文案_UK":"Great news! Your account is fully verified. You're ready to back your team. [審査が完了しました！チームを応援する準備は万端です。]","遷移先":"Top (Match List) または Deposit","Phase":"Phase 1","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14024-221597","https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14105-23924"]},
+  {"index":5,"対応箇所":"Onboarding (初回入金)","通知の種類_list":["Push","Email"],"トリガー":"登録後 N 日経過し、まだ一度も入金していない場合","目的":"初回入金とウェルカムボーナス訴求でアクティベーションを促す","タイトル案_UK":"Your first deposit bonus is waiting 💰","本文案_UK":"Deposit now and get a free bet to use on this weekend's matches. [今すぐ入金して、今週末の試合で使えるフリーベットをゲット。]","遷移先":"Deposit 画面 または Match List","Phase":"Phase 2","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14024-221597","https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14057-22935"]},
+  {"index":6,"対応箇所":"Match List (MY CLUB)","通知の種類_list":["Push"],"トリガー":"ユーザーが「MY CLUB」に設定したチームの試合開始15分前","目的":"お気に入りチームの試合へのインプレイベット（In-Play）を促す","タイトル案_UK":"Kick-off is approaching! ⚽","本文案_UK":"Your club is playing in 15 mins. Check out the latest odds and place your bets! [あなたのクラブの試合が15分後に始まります。最新のオッズをチェック！]","遷移先":"Match List > 当該試合の詳細 / Market List","Phase":"Phase 1","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14024-221597"]},
+  {"index":7,"対応箇所":"Match List (MY CLUB)","通知の種類_list":["Push"],"トリガー":"「MY CLUB」の試合でゴールが決まった瞬間（※設定でON/OFF可能）","目的":"試合の熱狂を伝え、追加のインプレイベットやキャッシュアウトを促す","タイトル案_UK":"GOAL! 🎯","本文案_UK":"Your club just scored! Tap to see the live action and updated odds. [あなたのクラブがゴールを決めました！ライブ状況と最新オッズを確認しましょう。]","遷移先":"Match List > 当該試合の In-Play タブ","Phase":"Phase 1","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14024-221597"]},
+  {"index":8,"対応箇所":"Match List (ベット済み試合)","通知の種類_list":["Push"],"トリガー":"ユーザーがベットしている試合のキックオフ N 分前（例: 15分）","目的":"ベットした試合の開始を伝え、Live 視聴・追加ベットを促す","タイトル案_UK":"Your match is about to start ⏱️","本文案_UK":"Kick-off in 15 mins. Follow the action live and consider in-play bets. [ベットした試合が15分後に開始。ライブでチェックしよう。]","遷移先":"Match List > 当該試合の詳細 / Live","Phase":"Phase 1","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14024-221597"]},
+  {"index":9,"対応箇所":"Match List (オッズ締切)","通知の種類_list":["Push","Toast"],"トリガー":"ベット可能な試合のオッズ締切が N 分前（例: 30分）の時","目的":"締切前にベットする機会を逃さないようにする","タイトル案_UK":"Markets closing soon 📉","本文案_UK":"Pre-match odds for [Team A vs Team B] close in 30 mins. Place your bet now. [プレマッチオッズは30分で締切。今すぐベットしよう。]","遷移先":"当該試合の Market List","Phase":"Phase 2","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14024-221597","https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14105-23924"]},
+  {"index":10,"対応箇所":"Bet Slip","通知の種類_list":["Toast"],"トリガー":"Bet Slip画面で「Place Bet」をタップし、ベットが完了した時","目的":"処理の成功をフィードバックし、安心感を与える","タイトル案_UK":"—","本文案_UK":"Bet placed successfully! Good luck. [ベットが完了しました！グッドラック。]","遷移先":"Bet completed 画面","Phase":"Phase 1","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14105-23924"]},
+  {"index":11,"対応箇所":"Bet Slip","通知の種類_list":["Toast"],"トリガー":"「Place Bet」後、残高不足・オッズ変動等でベットが拒否された時","目的":"失敗理由を伝え、修正（入金・再選択）へ導く","タイトル案_UK":"Bet could not be placed ⚠️","本文案_UK":"Your bet was not placed. Balance may be insufficient or odds have changed. [ベットできませんでした。残高不足またはオッズ変動の可能性があります。]","遷移先":"Bet Slip 画面 または Deposit","Phase":"Phase 1","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14105-23924"]},
+  {"index":12,"対応箇所":"Bet Slip","通知の種類_list":["Banner"],"トリガー":"Bet Slip 内のオッズがサーバー側で更新された時（ベット前）","目的":"最新オッズでベットするよう促し、紛争を防ぐ","タイトル案_UK":"Odds have been updated 📊","本文案_UK":"The odds in your slip have changed. Review and place your bet. [スリップのオッズが更新されました。確認のうえベットしてください。]","遷移先":"Bet Slip 画面","Phase":"Phase 1","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14105-23924"]},
+  {"index":13,"対応箇所":"Bet Slip","通知の種類_list":["Push","Toast"],"トリガー":"Bet Slip に選択を入れたままアプリを離れ、一定時間経過した時（カート放棄）","目的":"離脱したユーザーを戻し、ベット完了を促す","タイトル案_UK":"You left a bet behind 🎫","本文案_UK":"Your selections are still in your slip. Complete your bet before the match starts! [選択したベットがスリップに残っています。試合開始前に完了しよう。]","遷移先":"Bet Slip 画面","Phase":"Phase 2","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14024-221597","https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14105-23924"]},
+  {"index":14,"対応箇所":"My Bet","通知の種類_list":["Push"],"トリガー":"ベットしていた試合が終了し、結果（Settled）が確定した時（Win の場合）","目的":"勝利の喜びを最大化し、アプリを開かせる（Winning Bet 演出へ繋げる）","タイトル案_UK":"You've got a winner! 🏆","本文案_UK":"Get in! Your bet has settled as a WIN. Tap to see your returns. [やりましたね！ベットが的中しました。払戻金を確認しましょう。]","遷移先":"My Bet > Settled タブ（Winning Bet 演出へ）","Phase":"Phase 1","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14024-221597"]},
+  {"index":15,"対応箇所":"My Bet","通知の種類_list":["Push"],"トリガー":"ベットしていた試合が終了し、結果が確定した時（Loss の場合）","目的":"結果を透明性をもって伝え、次のベットの機会を提供する","タイトル案_UK":"Bet settled 📋","本文案_UK":"Your recent bet has been settled. Check your bet history for details. [直近のベット結果が確定しました。履歴から詳細をご確認ください。]","遷移先":"My Bet > Settled タブ","Phase":"Phase 1","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14024-221597"]},
+  {"index":16,"対応箇所":"My Bet","通知の種類_list":["Push","Toast"],"トリガー":"ベットが Void（無効・返金）になった時（試合中止・取り消し等）","目的":"返金されたことを明示し、信頼を維持する","タイトル案_UK":"Bet voided – stake returned 🔄","本文案_UK":"Your bet was voided and your stake has been returned to your balance. [ベットは無効となり、賭け金は残高に返金されました。]","遷移先":"My Bet > Settled タブ","Phase":"Phase 1","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14024-221597","https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14105-23924"]},
+  {"index":17,"対応箇所":"My Bet","通知の種類_list":["Push","Toast"],"トリガー":"アキュムレーター（マルチ）の一部レグが確定し、残りレグの状況が変わった時","目的":"マルチの途中経過を伝え、継続フォローを促す","タイトル案_UK":"Acca update 📋","本文案_UK":"One leg of your accumulator has settled. [X/Y] legs won. Tap to see your bet. [アッカの1レグが確定しました。[X/Y]レグ的中。タップで確認。]","遷移先":"My Bet > 該当アッカ","Phase":"Phase 2","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14024-221597","https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14105-23924"]},
+  {"index":18,"対応箇所":"My Bet","通知の種類_list":["Push","Toast"],"トリガー":"キャッシュアウト可能額が閾値以上に変動した時（例: 大きく増加）","目的":"キャッシュアウトの判断材料をタイムリーに提供","タイトル案_UK":"Cash out value updated 💵","本文案_UK":"Your cash-out value has changed. Tap to see if you want to secure your returns. [キャッシュアウト可能額が変動しました。払戻を確定するか確認しましょう。]","遷移先":"My Bet > 該当ベット または Live 画面","Phase":"Phase 2","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14024-221597","https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14105-23924"]},
+  {"index":19,"対応箇所":"My Page (Deposit)","通知の種類_list":["Toast","Push"],"トリガー":"アプリ内での入金処理が完了し、残高が反映された時","目的":"資金が安全に反映されたことを伝え、ベット行動へ移させる","タイトル案_UK":"Deposit successful 💷","本文案_UK":"Your funds have hit your account. Ready to make your predictions? [アカウントに入金が反映されました。予想を始めましょう！]","遷移先":"元いた画面 または Match List","Phase":"Phase 1","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14105-23924","https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14024-221597"]},
+  {"index":20,"対応箇所":"My Page (Deposit)","通知の種類_list":["Toast","Push"],"トリガー":"入金処理が失敗した時（カード拒否・限度超過等）","目的":"失敗理由を伝え、別の支払い方法や再試行へ導く","タイトル案_UK":"Deposit unsuccessful ⚠️","本文案_UK":"Your deposit could not be processed. Please check your payment method or try again. [入金を処理できませんでした。お支払い方法をご確認のうえ、再度お試しください。]","遷移先":"Deposit 画面","Phase":"Phase 1","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14105-23924","https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14024-221597"]},
+  {"index":21,"対応箇所":"My Page (Withdraw)","通知の種類_list":["Push","Email"],"トリガー":"出金リクエストが受付され、処理中になった時","目的":"申請が受け付けられたことを確認させ、安心感を与える","タイトル案_UK":"Withdrawal received 📥","本文案_UK":"We've received your withdrawal request. We'll process it shortly. [出金リクエストを受け付けました。まもなく処理します。]","遷移先":"My Page > Transaction history","Phase":"Phase 2","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14024-221597","https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14057-22935"]},
+  {"index":22,"対応箇所":"My Page (Withdraw)","通知の種類_list":["Push","Email"],"トリガー":"出金リクエストが処理され、ユーザーの銀行口座等へ送金された時","目的":"資金の引き出しが完了したことを知らせ、信頼性を高める","タイトル案_UK":"Withdrawal on its way 💸","本文案_UK":"Your withdrawal has been processed and is on its way to your bank account. [出金処理が完了し、指定口座へ送金されました。]","遷移先":"My Page > Transaction history","Phase":"Phase 1","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14024-221597","https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14057-22935"]},
+  {"index":23,"対応箇所":"My Page (Withdraw)","通知の種類_list":["Push","Email"],"トリガー":"出金が却下・保留された時（本人確認不足・規約違反等）","目的":"理由と次のアクションを伝え、サポートへ誘導","タイトル案_UK":"Withdrawal update ⚠️","本文案_UK":"Your withdrawal could not be completed. Please check your email or contact support. [出金を完了できませんでした。メールをご確認するか、サポートへお問い合わせください。]","遷移先":"My Page > Transaction history または Support","Phase":"Phase 1","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14024-221597","https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14057-22935"]},
+  {"index":24,"対応箇所":"My Page (Free Bet)","通知の種類_list":["Push","Toast"],"トリガー":"キャンペーン等でユーザーに Free Bet が付与された時","目的":"無料で遊べるインセンティブを知らせ、アプリの起動とアクティベーションを促す","タイトル案_UK":"You've earned a Free Bet! 🎁","本文案_UK":"A £10 Free Bet has been credited to your account. Use it on today's matches! [£10のフリーベットが付与されました。今日の試合で使いましょう！]","遷移先":"Match List または Free Bet 管理画面","Phase":"Phase 1","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14024-221597","https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14105-23924"]},
+  {"index":25,"対応箇所":"My Page (Free Bet)","通知の種類_list":["Push","Toast"],"トリガー":"Free Bet またはボーナスの有効期限が N 日以内になった時","目的":"期限切れを防ぎ、利用を促す","タイトル案_UK":"Your Free Bet expires soon ⏰","本文案_UK":"Your £10 Free Bet expires in 2 days. Use it before it's gone! [フリーベットは2日で期限切れです。お早めにご利用ください。]","遷移先":"Match List または Free Bet 管理画面","Phase":"Phase 2","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14024-221597","https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14105-23924"]},
+  {"index":26,"対応箇所":"My Page (Promo)","通知の種類_list":["Push","Toast"],"トリガー":"新規プロモ・オッズブーストが開始された時","目的":"新しいインセンティブを伝え、ベットを誘発","タイトル案_UK":"New offer: Odds Boost 🔥","本文案_UK":"[Team] to win is now boosted to @2.50. Tap to add to your bet slip. [〇〇勝利が@2.50にブースト中。タップしてスリップに追加。]","遷移先":"当該マーケット または Promo 一覧","Phase":"Phase 2","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14024-221597","https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14105-23924"]},
+  {"index":27,"対応箇所":"My Page (Promo)","通知の種類_list":["Push","Toast"],"トリガー":"参加中のキャンペーンが終了間近の時","目的":"締切前にアクションを促す","タイトル案_UK":"Campaign ending soon 📢","本文案_UK":"Your current promotion ends in 24 hours. Complete the requirements to claim your bonus. [キャンペーンは24時間で終了。条件を達成してボーナスを獲得しよう。]","遷移先":"Promo 詳細 または My Page","Phase":"Phase 2","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14024-221597","https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14105-23924"]},
+  {"index":28,"対応箇所":"Account (セキュリティ)","通知の種類_list":["Push","Email"],"トリガー":"新規デバイスまたは新しい場所からログインした時","目的":"不正利用の早期発見と本人確認","タイトル案_UK":"New login to your account 🔐","本文案_UK":"We noticed a login from a new device. If this wasn't you, reset your password now. [新しいデバイスからログインがありました。心当たりがなければパスワードをリセットしてください。]","遷移先":"My Page > Security または パスワードリセット","Phase":"Phase 1","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14024-221597","https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14057-22935"]},
+  {"index":29,"対応箇所":"Account (セキュリティ)","通知の種類_list":["Push","Email"],"トリガー":"パスワード変更が完了した時","目的":"変更完了の確認と安心感","タイトル案_UK":"Password changed ✅","本文案_UK":"Your password has been updated successfully. [パスワードが正常に更新されました。]","遷移先":"My Page > Security","Phase":"Phase 2","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14024-221597","https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14057-22935"]},
+  {"index":30,"対応箇所":"Account (セキュリティ)","通知の種類_list":["Push","Email"],"トリガー":"不正・異常と検知したアクティビティがあった時（複数失敗ログイン等）","目的":"アカウント保護と即時アクションの促し","タイトル案_UK":"Unusual activity detected 🚨","本文案_UK":"We've detected unusual activity. Please secure your account. [異常なアクティビティを検知しました。アカウントを保護してください。]","遷移先":"My Page > Security または パスワードリセット","Phase":"Phase 1","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14024-221597","https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14057-22935"]},
+  {"index":31,"対応箇所":"Responsible Gambling","通知の種類_list":["Toast","Push"],"トリガー":"ユーザーが設定したデポジットリミットに達した時","目的":"自己管理の支援と規制コンプライアンス","タイトル案_UK":"Deposit limit reached 📊","本文案_UK":"You've reached your daily deposit limit. Your limit resets at midnight. [本日の入金リミットに達しました。リセットは0時です。]","遷移先":"My Page > Limits","Phase":"Phase 1","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14105-23924","https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14024-221597"]},
+  {"index":32,"対応箇所":"Responsible Gambling","通知の種類_list":["Dialog"],"トリガー":"セルフ Exclusion 期間が終了する N 日前（設定している場合）","目的":"復帰希望者への案内（規制に応じた表現にする）","タイトル案_UK":"Your break period is ending soon","本文案_UK":"Your self-exclusion period ends on [date]. If you wish to extend, visit settings. [休会期間は[日付]に終了します。延長は設定から。]","遷移先":"My Page > Responsible Gambling","Phase":"Phase 3","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14057-22536"]},
+  {"index":33,"対応箇所":"Engagement (リエンゲージ)","通知の種類_list":["Push"],"トリガー":"お気に入り・MY CLUB の試合が翌日または当日にある時（試合前日など）","目的":"試合を思い出させ、プレマッチベットを促す","タイトル案_UK":"[Team] are playing tomorrow ⚽","本文案_UK":"[Team A] vs [Team B] – place your pre-match bet now. [明日は〇〇の試合。今すぐプレマッチベットしよう。]","遷移先":"Match List > 当該試合","Phase":"Phase 2","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14024-221597"]},
+  {"index":34,"対応箇所":"Engagement (リエンゲージ)","通知の種類_list":["Push"],"トリガー":"長期間アプリを開いていないユーザー向け（例: 7日以上）","目的":"休眠ユーザーの再起動（控えめな頻度で）","タイトル案_UK":"We miss you! 🏟️","本文案_UK":"Your club has a big match this week. Catch up on the latest odds. [今週はビッグマッチ。最新オッズをチェックしよう。]","遷移先":"Match List または Top","Phase":"Phase 3","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14024-221597"]},
+  {"index":35,"対応箇所":"Live Activity (Match Live)","通知の種類_list":["Live Activity"],"トリガー":"ベットした試合がキックオフした時","目的":"ロック画面を解除せずに、試合状況と自身のベットの行方をリアルタイムで把握できる","タイトル案_UK":"—","本文案_UK":"ARS 2 - 1 CHE | 75' | Your Bet: Home Win","遷移先":"（Live Activity 表示のまま）","Phase":"Phase 1","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=15802-391806"]},
+  {"index":36,"対応箇所":"Live Activity (Event Alert)","通知の種類_list":["Live Activity"],"トリガー":"ベットした試合でゴール・レッドカード・VAR判定などの重要イベントが発生した時","目的":"決定的な瞬間やオッズ変動を逃さず伝え、アプリへの再訪と追加アクションを促す","タイトル案_UK":"GOAL! ⚽️","本文案_UK":"ARS 3 - 1 CHE | Saka 78' | Odds updated. View live markets. [サカ 78分 オッズ更新。ライブマーケットを表示]","遷移先":"該当試合の Live 画面","Phase":"Phase 1","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=15802-391806"]},
+  {"index":37,"対応箇所":"Widget (My Bets)","通知の種類_list":["Widget"],"トリガー":"ホーム画面に配置済みで、現在進行中（未確定）のベットがある場合","目的":"アプリを開かずにベット状況とキャッシュアウト可能額を一覧でき、安心感と利便性を提供","タイトル案_UK":"My Bets (Live) 🎟️","本文案_UK":"Arsenal to win (3-1, 78') | Current return: £120. Tap to manage. [アーセナル勝利 (3-1, 78分) 現在の払戻予定: £120。タップで管理]","遷移先":"該当ベット / My Bet","Phase":"Phase 2","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=16179-75722"]},
+  {"index":38,"対応箇所":"Widget (Trending)","通知の種類_list":["Widget"],"トリガー":"ホーム画面に配置済み（常時表示。試合前メイン）","目的":"人気の試合・ブーストオッズ・おすすめを提示し、新たなベットを誘発する","タイトル案_UK":"Trending Match 🔥","本文案_UK":"Man City vs Liverpool | Man City Win @2.10. Tap to bet. [マンチェスター・C 対 リヴァプール マンC勝利 @2.10。タップしてベット]","遷移先":"Match List または 当該試合","Phase":"Phase 2","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=16179-75722"]},
+  {"index":39,"対応箇所":"Dynamic Island (Compact)","通知の種類_list":["Dynamic Island"],"トリガー":"Live Activity 有効時、アプリをバックグラウンドにした時","目的":"他アプリ使用中も、スコアと経過時間を視界の隅に表示","タイトル案_UK":"—","本文案_UK":"[Home Logo] 3-1 [Away Logo] | 78' [78分・コンパクト表示]","遷移先":"アプリに戻る（該当試合の画面）","Phase":"Phase 2","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=15802-391828"]},
+  {"index":40,"対応箇所":"Dynamic Island (Expanded)","通知の種類_list":["Dynamic Island"],"トリガー":"長押しで展開、または試合中に重要イベント（VAR 等）が発生した時","目的":"詳細を素早く確認し、キャッシュアウト等の判断材料とする","タイトル案_UK":"VAR Check in progress... 📺","本文案_UK":"Potential Penalty for Arsenal. Cash out available: £30 [VAR確認中... アーセナルにPKの可能性。キャッシュアウト可能額：£30]","遷移先":"該当試合の Live Betting 画面","Phase":"Phase 2","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=15802-391840"]},
+  {"index":41,"対応箇所":"System (メンテナンス)","通知の種類_list":["Push","Toast"],"トリガー":"計画的メンテナンスの N 時間前","目的":"ダウンタイムを伝え、ベット締切前にアクションを促す","タイトル案_UK":"Scheduled maintenance 🔧","本文案_UK":"We'll be performing maintenance on [date/time]. Place your bets before then. [メンテナンスを[日時]に実施します。それまでにベットを完了してください。]","遷移先":"アプリ内 または Match List","Phase":"Phase 2","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14024-221597","https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14105-23924"]},
+  {"index":42,"対応箇所":"System (アプリ更新)","通知の種類_list":["Dialog"],"トリガー":"アプリの新バージョンがリリースされ、推奨更新がある時","目的":"セキュリティ・新機能の案内とストア誘導","タイトル案_UK":"Update available 📲","本文案_UK":"A new version is available with improvements and bug fixes. Update now. [新しいバージョンが利用可能です。今すぐ更新してください。]","遷移先":"App Store / Play Store","Phase":"Phase 2","figma_links":["https://www.figma.com/design/AWxFiM47ZYbwbIqplVoCoV/?node-id=14057-22536"]}
+];
+
+// State
+let activePhase = 'all';
+let activeTypes = new Set();
+let searchQuery = '';
+
+// Badge class mapping
+function getBadgeClass(type) {
+  const map = {
+    'Push': 'badge-push',
+    'Toast': 'badge-toast',
+    'Dialog': 'badge-dialog',
+    'Email': 'badge-email',
+    'Banner': 'badge-banner',
+    'Live Activity': 'badge-live-activity',
+    'Widget': 'badge-widget',
+    'Dynamic Island': 'badge-dynamic-island'
+  };
+  return map[type] || '';
+}
+
+function getPhaseClass(phase) {
+  if (phase === 'Phase 1') return 'badge-phase-1';
+  if (phase === 'Phase 2') return 'badge-phase-2';
+  if (phase === 'Phase 3') return 'badge-phase-3';
+  return '';
+}
+
+function parseBody(text) {
+  const match = text.match(/^(.*?)\s*\[(.+)\]$/s);
+  if (match) {
+    return `<span class="en">${escapeHtml(match[1].trim())}</span><span class="ja">${escapeHtml(match[2])}</span>`;
+  }
+  return `<span class="en">${escapeHtml(text)}</span>`;
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function renderTable() {
+  const tbody = document.getElementById('tableBody');
+  const emptyState = document.getElementById('emptyState');
+  const countBadge = document.getElementById('rowCount');
+
+  const filtered = notificationData.filter(item => {
+    // Phase filter
+    if (activePhase !== 'all' && item.Phase !== activePhase) return false;
+
+    // Type filter
+    if (activeTypes.size > 0) {
+      const hasType = item['通知の種類_list'].some(t => activeTypes.has(t));
+      if (!hasType) return false;
+    }
+
+    // Search
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      const searchable = [
+        item['対応箇所'],
+        item['トリガー'],
+        item['目的'],
+        item['タイトル案_UK'],
+        item['本文案_UK'],
+        item['遷移先'],
+        ...item['通知の種類_list']
+      ].join(' ').toLowerCase();
+      if (!searchable.includes(q)) return false;
+    }
+
+    return true;
+  });
+
+  countBadge.textContent = `${filtered.length} / ${notificationData.length} items`;
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '';
+    emptyState.style.display = 'block';
+    return;
+  }
+
+  emptyState.style.display = 'none';
+
+  tbody.innerHTML = filtered.map(item => {
+    const typeBadges = item['通知の種類_list'].map(t =>
+      `<span class="badge ${getBadgeClass(t)}">${escapeHtml(t)}</span>`
+    ).join('');
+
+    const figmaLinks = (item.figma_links || []).map((link, i) =>
+      `<a href="${link}" target="_blank" rel="noopener" class="figma-link" title="Figma ${i + 1}">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      </a>`
+    ).join('');
+
+    return `<tr>
+      <td class="cell-index">${item.index}</td>
+      <td class="cell-section">${escapeHtml(item['対応箇所'])}</td>
+      <td class="cell-types">${typeBadges}</td>
+      <td class="cell-trigger">${escapeHtml(item['トリガー'])}</td>
+      <td class="cell-purpose">${escapeHtml(item['目的'])}</td>
+      <td class="cell-title">${escapeHtml(item['タイトル案_UK'])}</td>
+      <td class="cell-body">${parseBody(item['本文案_UK'])}</td>
+      <td class="cell-destination">${escapeHtml(item['遷移先'])}</td>
+      <td class="cell-phase"><span class="badge-phase ${getPhaseClass(item.Phase)}">${escapeHtml(item.Phase)}</span></td>
+      <td class="cell-figma">${figmaLinks}</td>
+    </tr>`;
+  }).join('');
+}
+
+// Phase filters
+document.getElementById('phaseFilters').addEventListener('click', (e) => {
+  const btn = e.target.closest('.filter-btn');
+  if (!btn) return;
+  document.querySelectorAll('#phaseFilters .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  activePhase = btn.dataset.phase;
+  renderTable();
+});
+
+// Type filters (toggle)
+document.getElementById('typeFilters').addEventListener('click', (e) => {
+  const btn = e.target.closest('.filter-btn');
+  if (!btn) return;
+  const type = btn.dataset.type;
+  if (activeTypes.has(type)) {
+    activeTypes.delete(type);
+    btn.classList.remove('active');
+  } else {
+    activeTypes.add(type);
+    btn.classList.add('active');
+  }
+  renderTable();
+});
+
+// Search
+document.getElementById('searchInput').addEventListener('input', (e) => {
+  searchQuery = e.target.value;
+  renderTable();
+});
+
+// Initial render
+renderTable();
+</script>
+</body>
+</html>
