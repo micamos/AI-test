@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>おさいふ</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --red:#E8003D;--red-light:#FFF0F4;--red-dark:#8B0024;
+  --blue:#0050D9;--blue-light:#EAF0FF;--blue-dark:#002B7A;
+  --yellow:#FFD700;--yellow-text:#7A5C00;
+  --bg:#F7F3EE;--card:#FFFFFF;
+  --ink:#1A1A2E;--ink2:#6B6B8A;--ink3:#A0A0BC;
+  --r:16px;--r-sm:10px;--r-pill:999px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;background:var(--bg);color:var(--ink);}
+.phone{max-width:390px;margin:0 auto;min-height:100vh;background:var(--bg);}
+.screen{display:none;flex-direction:column;min-height:100vh;}
+.screen.active{display:flex;}
+.topbar{display:flex;align-items:center;padding:16px 16px 8px;gap:10px;}
+.topbar-title{font-size:18px;font-weight:500;color:var(--ink);flex:1;}
+.topbar-btn{width:36px;height:36px;border-radius:50%;background:var(--card);border:1.5px solid #E0DCF5;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+.back-btn{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--blue);background:none;border:none;cursor:pointer;padding:0;}
+.sync-badge{font-size:11px;padding:3px 8px;border-radius:var(--r-pill);font-weight:500;}
+.sync-badge.online{background:#E6FFF5;color:#0F6E56;}
+.sync-badge.offline{background:#FFF0F4;color:#8B0024;}
+.total-hero{margin:0 16px 14px;background:var(--ink);border-radius:var(--r);padding:20px 20px 16px;color:#fff;position:relative;overflow:hidden;}
+.total-hero::before{content:'';position:absolute;right:-20px;top:-20px;width:100px;height:100px;border-radius:50%;background:rgba(255,215,0,0.12);}
+.total-hero::after{content:'';position:absolute;right:20px;bottom:-30px;width:70px;height:70px;border-radius:50%;background:rgba(0,80,217,0.2);}
+.total-hero-label{font-size:11px;color:rgba(255,255,255,0.6);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px;}
+.total-hero-amount{font-size:32px;font-weight:500;letter-spacing:-1px;color:#fff;line-height:1.1;}
+.total-hero-change{font-size:12px;margin-top:6px;display:flex;align-items:center;gap:4px;}
+.pill-up{background:#00A86B;color:#fff;padding:2px 8px;border-radius:var(--r-pill);font-size:11px;font-weight:500;}
+.pill-down{background:#E8003D;color:#fff;padding:2px 8px;border-radius:var(--r-pill);font-size:11px;font-weight:500;}
+.person-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px 14px;}
+.p-card{border-radius:var(--r);padding:14px;position:relative;overflow:hidden;}
+.p-card.red{background:var(--red);}
+.p-card.blue{background:var(--blue);}
+.p-card-label{font-size:11px;color:rgba(255,255,255,0.7);margin-bottom:2px;}
+.p-card-name{font-size:14px;font-weight:500;color:#fff;}
+.p-card-amount{font-size:20px;font-weight:500;color:#fff;margin-top:8px;letter-spacing:-0.5px;}
+.p-card-badge{position:absolute;right:10px;top:10px;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:#fff;}
+.chart-wrap{margin:0 16px 12px;background:var(--card);border-radius:var(--r);padding:14px;border:1.5px solid #E8E4F4;}
+.period-row{display:flex;gap:4px;margin-bottom:12px;}
+.ptab{height:26px;padding:0 10px;font-size:11px;border-radius:var(--r-pill);border:1.5px solid #E0DCF5;background:none;cursor:pointer;color:var(--ink2);font-weight:500;}
+.ptab.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+.legend-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;}
+.leg{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink2);}
+.leg-sq{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
+.bottom-actions{padding:0 16px 20px;display:flex;flex-direction:column;gap:6px;}
+.hist-link-btn{display:flex;align-items:center;justify-content:space-between;padding:4px 2px;background:none;border:none;cursor:pointer;width:100%;}
+.hist-link-btn:active{opacity:0.6;}
+.hist-link-label{font-size:13px;color:var(--ink2);}
+.record-btn{width:100%;height:54px;border-radius:var(--r);background:var(--yellow);border:none;cursor:pointer;font-size:15px;font-weight:500;color:var(--yellow-text);display:flex;align-items:center;justify-content:center;gap:8px;}
+.record-btn:active{transform:scale(0.98);}
+.bottom-nav{display:flex;background:var(--card);border-top:1.5px solid #E8E4F4;padding:8px 0 12px;}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;padding:6px 0;}
+.nav-icon-circle{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+.nav-label{font-size:10px;color:var(--ink3);}
+.reg-scroll{flex:1;padding:16px;}
+.field{margin-bottom:16px;}
+.field-label{font-size:11px;font-weight:500;color:var(--ink2);margin-bottom:6px;letter-spacing:0.06em;text-transform:uppercase;}
+.field-input{width:100%;height:44px;border-radius:var(--r-sm);border:1.5px solid #E0DCF5;background:var(--card);font-size:14px;padding:0 12px;color:var(--ink);}
+.field-input:focus{outline:none;border-color:var(--blue);}
+.person-block{border-radius:var(--r);border:1.5px solid #E0DCF5;background:var(--card);margin-bottom:14px;overflow:hidden;}
+.person-block-header{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1.5px solid #F0EDF8;}
+.pb-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;}
+.pb-name{font-size:14px;font-weight:500;color:var(--ink);}
+.acc-input-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #F5F2FC;}
+.acc-input-row:last-child{border-bottom:none;}
+.acc-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.acc-label{font-size:13px;color:var(--ink2);flex:1;}
+.acc-amount-input{width:130px;height:36px;border-radius:var(--r-sm);border:1.5px solid #E0DCF5;background:var(--bg);font-size:13px;padding:0 10px;color:var(--ink);text-align:right;}
+.acc-amount-input:focus{outline:none;border-color:var(--blue);}
+.submit-btn{width:100%;height:52px;border-radius:var(--r);background:var(--ink);border:none;cursor:pointer;font-size:16px;font-weight:500;color:#fff;margin-top:4px;}
+.submit-btn:active{transform:scale(0.98);}
+.settings-scroll{flex:1;padding:16px;}
+.settings-card{background:var(--card);border-radius:var(--r);padding:16px;margin-bottom:12px;border:1.5px solid #E8E4F4;}
+.settings-card-title{font-size:12px;font-weight:500;color:var(--ink2);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.05em;}
+.name-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.name-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;flex-shrink:0;}
+.name-input{flex:1;height:36px;border-radius:var(--r-sm);border:1.5px solid #E0DCF5;background:var(--bg);font-size:13px;padding:0 10px;color:var(--ink);}
+.name-input:focus{outline:none;border-color:var(--blue);}
+.save-name-btn{height:36px;padding:0 14px;border-radius:var(--r-sm);background:var(--blue);border:none;cursor:pointer;font-size:12px;font-weight:500;color:#fff;}
+.acc-list-item{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #F0EDF8;}
+.acc-list-item:last-child{border-bottom:none;}
+.acc-del{font-size:11px;color:#E8003D;background:none;border:none;cursor:pointer;padding:2px 6px;}
+.add-acc-row{display:flex;gap:6px;margin-top:8px;}
+.add-acc-in{flex:1;height:34px;border-radius:var(--r-sm);border:1.5px solid #E0DCF5;background:var(--bg);font-size:13px;padding:0 10px;color:var(--ink);}
+.add-acc-in:focus{outline:none;border-color:var(--blue);}
+.add-acc-btn{height:34px;padding:0 12px;border-radius:var(--r-sm);background:var(--blue);border:none;cursor:pointer;font-size:12px;font-weight:500;color:#fff;}
+.danger-btn{width:100%;height:40px;border-radius:var(--r-sm);background:none;border:1.5px solid #FFCCD7;cursor:pointer;font-size:13px;color:#E8003D;}
+.hist-scroll{flex:1;padding:0 16px 24px;}
+.hist-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #F0EDF8;}
+.hist-item:last-child{border-bottom:none;}
+.hist-badge{height:16px;padding:0 6px;border-radius:var(--r-pill);font-size:10px;font-weight:500;}
+.no-data{text-align:center;padding:40px 16px;color:var(--ink2);font-size:13px;}
+.loading{text-align:center;padding:60px 16px;color:var(--ink2);font-size:13px;}
+</style>
+</head>
+<body>
+<div class="phone" id="app">
+
+<div class="screen active" id="sc-graph">
+  <div class="topbar">
+    <div class="topbar-title">おさいふ</div>
+    <span class="sync-badge offline" id="sync-badge">...</span>
+    <button class="topbar-btn" onclick="showScreen('sc-settings')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    </button>
+  </div>
+  <div class="total-hero">
+    <div class="total-hero-label">家族の合計残高</div>
+    <div class="total-hero-amount" id="hero-total">読込中...</div>
+    <div class="total-hero-change" id="hero-change"></div>
+  </div>
+  <div class="person-cards">
+    <div class="p-card red">
+      <div class="p-card-label">口座合計</div>
+      <div class="p-card-name" id="pc-name-0">夫</div>
+      <div class="p-card-amount" id="pc-amt-0">—</div>
+      <div class="p-card-badge" id="pc-init-0">夫</div>
+    </div>
+    <div class="p-card blue">
+      <div class="p-card-label">口座合計</div>
+      <div class="p-card-name" id="pc-name-1">妻</div>
+      <div class="p-card-amount" id="pc-amt-1">—</div>
+      <div class="p-card-badge" id="pc-init-1">妻</div>
+    </div>
+  </div>
+  <div class="chart-wrap">
+    <div class="period-row">
+      <button class="ptab active" onclick="setPeriod(3,this)">3M</button>
+      <button class="ptab" onclick="setPeriod(6,this)">6M</button>
+      <button class="ptab" onclick="setPeriod(12,this)">1Y</button>
+      <button class="ptab" onclick="setPeriod(0,this)">全期間</button>
+    </div>
+    <div class="legend-row" id="chart-legend"></div>
+    <div style="position:relative;width:100%;height:220px;"><canvas id="mainChart"></canvas></div>
+  </div>
+  <div class="bottom-actions">
+    <button class="hist-link-btn" onclick="showScreen('sc-history')">
+      <span class="hist-link-label">履歴詳細</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A0A0BC" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+    <button class="record-btn" onclick="showScreen('sc-register')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      残高を記録する
+    </button>
+  </div>
+  <div style="flex:1;"></div>
+  <div class="bottom-nav">
+    <button class="nav-btn active" onclick="showScreen('sc-graph')">
+      <div class="nav-icon-circle"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0050D9" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+      <span class="nav-label" style="color:#0050D9;font-weight:500;">グラフ</span>
+    </button>
+    <button class="nav-btn" onclick="showScreen('sc-settings')">
+      <div class="nav-icon-circle"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></div>
+      <span class="nav-label">設定</span>
+    </button>
+  </div>
+</div>
+
+<div class="screen" id="sc-register">
+  <div class="topbar">
+    <button class="back-btn" onclick="showScreen('sc-graph')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      戻る
+    </button>
+    <div class="topbar-title" style="font-size:16px;">残高を記録</div>
+  </div>
+  <div class="reg-scroll">
+    <div class="field">
+      <div class="field-label">記録日</div>
+      <input class="field-input" id="reg-date" type="date" />
+    </div>
+    <div id="reg-persons-area"></div>
+    <button class="submit-btn" id="reg-submit-btn" onclick="submitRecord()">記録する</button>
+  </div>
+</div>
+
+<div class="screen" id="sc-history">
+  <div class="topbar">
+    <button class="back-btn" onclick="showScreen('sc-graph')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      戻る
+    </button>
+    <div class="topbar-title" style="font-size:16px;">履歴詳細</div>
+    <button onclick="clearAllRecords()" style="font-size:11px;color:#E8003D;background:none;border:1.5px solid #FFCCD7;border-radius:20px;padding:4px 10px;cursor:pointer;">削除</button>
+  </div>
+  <div class="hist-scroll" id="hist-list">
+    <div class="no-data">まだ記録がありません</div>
+  </div>
+</div>
+
+<div class="screen" id="sc-settings">
+  <div class="topbar">
+    <button class="back-btn" onclick="showScreen('sc-graph')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      戻る
+    </button>
+    <div class="topbar-title" style="font-size:16px;">設定</div>
+  </div>
+  <div class="settings-scroll">
+    <div id="settings-persons"></div>
+    <div class="settings-card">
+      <div class="settings-card-title">データ管理</div>
+      <button class="danger-btn" onclick="clearAllRecords()">すべての記録を削除</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, onValue, set, push, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDVuGuDDK9e96z0bi_ePEkaLEW2Iu14_14",
+  authDomain: "osaifu-tera.firebaseapp.com",
+  databaseURL: "https://osaifu-tera-default-rtdb.firebaseio.com",
+  projectId: "osaifu-tera",
+  storageBucket: "osaifu-tera.firebasestorage.app",
+  messagingSenderId: "267985100136",
+  appId: "1:267985100136:web:9ff90017191015866d4add"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+const P_COLORS=[['#E8003D','#FFF0F4','#8B0024'],['#0050D9','#EAF0FF','#002B7A']];
+const ACC_PALETTE=['#E8003D','#0050D9','#00A86B','#7F77DD','#EF9F27','#D85A30','#888780'];
+
+let S = {
+  persons: [
+    {id:'p0', name:'夫', accounts:[]},
+    {id:'p1', name:'妻', accounts:[]}
+  ],
+  records: []
+};
+let activePeriod = 3;
+let mainChart = null;
+
+const syncBadge = document.getElementById('sync-badge');
+
+onValue(ref(db, 'state'), (snapshot) => {
+  const data = snapshot.val();
+  if (data) {
+    S = data;
+    if (!S.persons) S.persons = [{id:'p0',name:'夫',accounts:[]},{id:'p1',name:'妻',accounts:[]}];
+    if (!S.records) S.records = [];
+    S.persons.forEach(p => { if (!p.accounts) p.accounts = []; });
+  }
+  syncBadge.textContent = '同期済';
+  syncBadge.className = 'sync-badge online';
+  const active = document.querySelector('.screen.active');
+  if (active) {
+    const id = active.id;
+    if (id === 'sc-graph') renderGraph();
+    if (id === 'sc-history') renderHistory();
+    if (id === 'sc-settings') renderSettings();
+  }
+}, (error) => {
+  syncBadge.textContent = 'オフライン';
+  syncBadge.className = 'sync-badge offline';
+});
+
+function saveToFirebase() {
+  syncBadge.textContent = '保存中...';
+  syncBadge.className = 'sync-badge offline';
+  set(ref(db, 'state'), S);
+}
+
+function yen(n){if(n==null||isNaN(n))return'—';return'¥'+Math.round(n).toLocaleString('ja-JP');}
+function todayStr(){return new Date().toISOString().slice(0,10);}
+function fmtDate(iso){const d=new Date(iso);return d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate();}
+
+window.showScreen = function(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(id==='sc-graph')renderGraph();
+  if(id==='sc-register')renderRegisterForm();
+  if(id==='sc-history')renderHistory();
+  if(id==='sc-settings')renderSettings();
+}
+
+function getLatest(pid,aid){const r=S.records.filter(x=>x.pid===pid&&x.aid===aid);return r.length?r[r.length-1].amount:null;}
+function getPrev(pid,aid){const r=S.records.filter(x=>x.pid===pid&&x.aid===aid);return r.length>=2?r[r.length-2].amount:null;}
+
+function renderGraph(){
+  let grandTotal=0,grandPrev=0,hasT=false,hasP=false;
+  S.persons.forEach((p,i)=>{
+    let psum=0,phas=false;
+    p.accounts.forEach(a=>{
+      const l=getLatest(p.id,a.id);const pr=getPrev(p.id,a.id);
+      if(l!=null){psum+=l;phas=true;grandTotal+=l;hasT=true;}
+      if(pr!=null){grandPrev+=pr;hasP=true;}
+    });
+    document.getElementById('pc-name-'+i).textContent=p.name;
+    document.getElementById('pc-amt-'+i).textContent=phas?yen(psum):'—';
+    document.getElementById('pc-init-'+i).textContent=p.name.charAt(0);
+  });
+  document.getElementById('hero-total').textContent=hasT?yen(grandTotal):'—';
+  const chEl=document.getElementById('hero-change');
+  if(hasT&&hasP){const d=grandTotal-grandPrev;const s=d>=0?'+':'';chEl.innerHTML=`<span class="${d>=0?'pill-up':'pill-down'}">${s}${yen(d)}</span><span style="font-size:11px;color:rgba(255,255,255,0.6);margin-left:6px;">前回比</span>`;}
+  else chEl.innerHTML='';
+  renderChart();
+}
+
+window.setPeriod = function(m,btn){
+  activePeriod=m;
+  document.querySelectorAll('.ptab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderChart();
+}
+
+function renderChart(){
+  const now=new Date();
+  const cutoff=activePeriod>0?new Date(now.getFullYear(),now.getMonth()-activePeriod,now.getDate()):null;
+  const recs=cutoff?S.records.filter(r=>new Date(r.ts)>=cutoff):S.records;
+  const allDates=[...new Set(recs.map(r=>r.ts.slice(0,10)))].sort();
+  const legendEl=document.getElementById('chart-legend');
+  if(!allDates.length){legendEl.innerHTML='';if(mainChart){mainChart.destroy();mainChart=null;}return;}
+  const datasets=[];const legItems=[];
+  S.persons.forEach(p=>{
+    p.accounts.forEach(a=>{
+      const allR=S.records.filter(r=>r.pid===p.id&&r.aid===a.id);
+      const lastB=cutoff?allR.filter(r=>new Date(r.ts)<cutoff).pop():null;
+      let last=lastB?lastB.amount:null;
+      const data=allDates.map(date=>{const dr=allR.filter(r=>r.ts.slice(0,10)===date);if(dr.length)last=dr[dr.length-1].amount;return last;});
+      if(data.some(v=>v!=null)){
+        datasets.push({label:p.name+'/'+a.name,data,borderColor:a.color,backgroundColor:a.color+'20',tension:0.4,pointRadius:3,fill:false,spanGaps:true,borderWidth:2});
+        legItems.push({color:a.color,label:p.name+'/'+a.name});
+      }
+    });
+  });
+  const totalData=allDates.map((_,i)=>{let sum=0;let any=false;datasets.forEach(ds=>{if(ds.data[i]!=null){sum+=ds.data[i];any=true;}});return any?sum:null;});
+  if(totalData.some(v=>v!=null)){
+    datasets.push({label:'合計',data:totalData,borderColor:'#1A1A2E',backgroundColor:'#1A1A2E10',tension:0.4,pointRadius:3,fill:false,borderDash:[5,3],spanGaps:true,borderWidth:2});
+    legItems.push({color:'#1A1A2E',label:'合計',dashed:true});
+  }
+  legendEl.innerHTML=legItems.map(l=>`<div class="leg"><div class="leg-sq" style="${l.dashed?'background:transparent;border:1.5px dashed '+l.color:'background:'+l.color};"></div>${l.label}</div>`).join('');
+  if(mainChart)mainChart.destroy();
+  mainChart=new Chart(document.getElementById('mainChart'),{
+    type:'line',data:{labels:allDates.map(d=>{const p=d.split('-');return p[1]+'/'+p[2];}),datasets},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+yen(ctx.parsed.y)}}},
+      scales:{x:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{font:{size:10},maxRotation:45,autoSkip:true,maxTicksLimit:8}},
+              y:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{font:{size:10},callback:v=>'¥'+(v>=10000?(v/10000).toFixed(0)+'万':v.toLocaleString())}}}}
+  });
+}
+
+function renderRegisterForm(){
+  document.getElementById('reg-date').value=todayStr();
+  const area=document.getElementById('reg-persons-area');
+  const submitBtn=document.getElementById('reg-submit-btn');
+  const hasAnyAccount=S.persons.some(p=>p.accounts.length>0);
+  if(!hasAnyAccount){
+    area.innerHTML=`<div style="background:var(--card);border-radius:var(--r);border:1.5px dashed #C8C4E0;padding:28px 20px;text-align:center;margin-bottom:16px;">
+      <div style="width:48px;height:48px;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0050D9" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      </div>
+      <div style="font-size:14px;font-weight:500;color:var(--ink);margin-bottom:6px;">口座が登録されていません</div>
+      <div style="font-size:12px;color:var(--ink2);margin-bottom:16px;">まず設定から口座を追加してください</div>
+      <button onclick="showScreen('sc-settings')" style="height:40px;padding:0 24px;border-radius:var(--r-pill);background:var(--blue);border:none;cursor:pointer;font-size:13px;font-weight:500;color:#fff;display:inline-flex;align-items:center;gap:6px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        口座を追加する
+      </button>
+    </div>`;
+    submitBtn.style.display='none';return;
+  }
+  submitBtn.style.display='block';
+  area.innerHTML=S.persons.map((p,pi)=>{
+    if(!p.accounts.length)return'';
+    const pc=P_COLORS[pi];
+    const rows=p.accounts.map(a=>`
+      <div class="acc-input-row">
+        <div class="acc-dot" style="background:${a.color};"></div>
+        <div class="acc-label">${a.name}</div>
+        <input class="acc-amount-input" id="ri-${p.id}-${a.id}" type="number" placeholder="金額" inputmode="numeric" />
+      </div>`).join('');
+    return `<div class="person-block"><div class="person-block-header"><div class="pb-avatar" style="background:${pc[1]};color:${pc[2]};">${p.name.charAt(0)}</div><div class="pb-name">${p.name}</div></div>${rows}</div>`;
+  }).join('');
+}
+
+window.submitRecord = function(){
+  const dateVal=document.getElementById('reg-date').value;if(!dateVal)return;
+  const ts=new Date(dateVal+'T12:00:00').toISOString();
+  let added=0;
+  S.persons.forEach(p=>{p.accounts.forEach(a=>{
+    const inp=document.getElementById('ri-'+p.id+'-'+a.id);if(!inp)return;
+    const val=parseFloat(inp.value);
+    if(!isNaN(val)&&val>=0){S.records.push({pid:p.id,aid:a.id,amount:val,ts});added++;}
+  });});
+  if(!added)return;
+  S.records.sort((a,b)=>new Date(a.ts)-new Date(b.ts));
+  saveToFirebase();
+  showScreen('sc-graph');
+}
+
+function renderHistory(){
+  const el=document.getElementById('hist-list');
+  if(!S.records.length){el.innerHTML='<div class="no-data">まだ記録がありません</div>';return;}
+  const byDate={};
+  S.records.forEach(r=>{const d=r.ts.slice(0,10);if(!byDate[d])byDate[d]=[];byDate[d].push(r);});
+  const dates=Object.keys(byDate).sort().reverse();
+  el.innerHTML=dates.map(date=>{
+    const rows=byDate[date].map(r=>{
+      const p=S.persons.find(x=>x.id===r.pid);
+      const a=p?.accounts.find(x=>x.id===r.aid);
+      const pi=S.persons.indexOf(p);const pc=P_COLORS[pi>=0?pi:0];
+      return `<div class="hist-item">
+        <div style="flex:1"><div style="display:flex;align-items:center;gap:5px;"><span class="hist-badge" style="background:${pc[1]};color:${pc[2]};">${p?.name||'?'}</span><span style="font-size:13px;color:var(--ink);">${a?.name||'?'}</span></div></div>
+        <div style="font-size:14px;font-weight:500;color:var(--ink);">${yen(r.amount)}</div>
+      </div>`;
+    }).join('');
+    return `<div style="padding:10px 0 2px;"><div style="font-size:11px;font-weight:500;color:var(--ink3);margin-bottom:4px;letter-spacing:0.05em;">${fmtDate(date)}</div>${rows}</div>`;
+  }).join('');
+}
+
+function renderSettings(){
+  const el=document.getElementById('settings-persons');
+  el.innerHTML=S.persons.map((p,i)=>{
+    const pc=P_COLORS[i];
+    const accItems=p.accounts.length
+      ?p.accounts.map(a=>`<div class="acc-list-item"><div style="width:8px;height:8px;border-radius:50%;background:${a.color};flex-shrink:0;"></div><div style="flex:1;font-size:13px;color:var(--ink);">${a.name}</div><button class="acc-del" onclick="delAccount('${p.id}','${a.id}')">削除</button></div>`).join('')
+      :'<div style="font-size:12px;color:var(--ink3);padding:4px 0;">口座なし</div>';
+    return `<div class="settings-card">
+      <div class="settings-card-title">${p.name}の設定</div>
+      <div class="name-row"><div class="name-av" style="background:${pc[1]};color:${pc[2]};">${p.name.charAt(0)}</div><input class="name-input" id="sn-${p.id}" value="${p.name}" /><button class="save-name-btn" onclick="saveName('${p.id}')">保存</button></div>
+      <div style="font-size:11px;font-weight:500;color:var(--ink2);margin:12px 0 6px;text-transform:uppercase;letter-spacing:0.05em;">口座</div>
+      <div>${accItems}</div>
+      <div class="add-acc-row"><input class="add-acc-in" id="ai-${p.id}" placeholder="口座名（例：楽天銀行）" /><button class="add-acc-btn" onclick="addAccount('${p.id}')">追加</button></div>
+    </div>`;
+  }).join('');
+  S.persons.forEach(p=>{const inp=document.getElementById('ai-'+p.id);if(inp)inp.addEventListener('keydown',e=>{if(e.key==='Enter')addAccount(p.id);});});
+}
+
+window.saveName = function(pid){
+  const v=document.getElementById('sn-'+pid)?.value.trim();if(!v)return;
+  S.persons.find(x=>x.id===pid).name=v;
+  saveToFirebase();renderSettings();
+}
+
+window.addAccount = function(pid){
+  const inp=document.getElementById('ai-'+pid);const name=inp.value.trim();if(!name)return;
+  const p=S.persons.find(x=>x.id===pid);
+  p.accounts.push({id:'a'+Date.now(),name,color:ACC_PALETTE[p.accounts.length%ACC_PALETTE.length]});
+  saveToFirebase();inp.value='';renderSettings();
+}
+
+window.delAccount = function(pid,aid){
+  if(!confirm('この口座を削除しますか？'))return;
+  S.persons.find(x=>x.id===pid).accounts=S.persons.find(x=>x.id===pid).accounts.filter(x=>x.id!==aid);
+  S.records=S.records.filter(x=>!(x.pid===pid&&x.aid===aid));
+  saveToFirebase();renderSettings();
+}
+
+window.clearAllRecords = function(){
+  if(!confirm('すべての記録を削除しますか？'))return;
+  S.records=[];
+  saveToFirebase();renderGraph();renderHistory();
+}
+</script>
+</body>
+</html>
